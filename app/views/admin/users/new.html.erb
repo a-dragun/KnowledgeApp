@@ -1,0 +1,74 @@
+<h1 class="section-title">Create New User</h1>
+
+<div class="form-container">
+  <%= form_with(model: @user, url: admin_users_path, local: true) do |form| %>
+    <% if @user.errors.any? %>
+      <div id="error_explanation">
+        <h2><%= pluralize(@user.errors.count, "error") %> prohibited this user from being saved:</h2>
+        <ul>
+          <% @user.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="form-group">
+      <%= form.label :name %>
+      <%= form.text_field :name, class: 'form-control' %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :email %>
+      <%= form.email_field :email, class: 'form-control' %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :password %>
+      <%= form.password_field :password, class: 'form-control' %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :password_confirmation %>
+      <%= form.password_field :password_confirmation, class: 'form-control' %>
+    </div>
+
+    <% if current_user.admin? %>
+      <div class="form-group">
+        <%= form.label :role %>
+        <%= form.select :role, User.roles.keys.map { |role| [role.humanize, role] }, {}, id: 'role_select', class: 'form-control' %>
+      </div>
+
+      <div class="form-group" id="faculty_field">
+        <%= form.label :faculty_id %>
+        <%= form.collection_select :faculty_id, Faculty.all, :id, :name, { include_blank: false }, id: 'faculty_select', class: 'form-control' %>
+      </div>
+    <% end %>
+
+    <div class="form-actions">
+      <%= form.submit 'Create User', class: 'btn btn-primary' %>
+    </div>
+  <% end %>
+</div>
+
+<script type="text/javascript">
+    document.addEventListener("DOMContentLoaded", function() {
+      var roleSelect = document.getElementById('role_select');
+      var facultyField = document.getElementById('faculty_field');
+      var facultySelect = document.getElementById('faculty_select');
+
+      function toggleFacultyField() {
+        if (roleSelect.value === 'faculty_member') {
+          facultyField.style.display = 'block';
+          facultySelect.required = true;
+        } else {
+          facultyField.style.display = 'none';
+          facultySelect.required = false;
+          facultySelect.value = '';
+        }
+      }
+
+      roleSelect.addEventListener('change', toggleFacultyField);
+      toggleFacultyField();
+    });
+  </script>

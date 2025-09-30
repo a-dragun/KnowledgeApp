@@ -1,0 +1,66 @@
+<h1 class="faculty-title"><%= @faculty.name %></h1>
+
+<% if current_user.admin? %>
+  <div class="button-container">
+    <%= button_to 'Delete Faculty', admin_faculty_path(@faculty), method: :delete, data: { confirm: 'Are you sure you want to delete this faculty?' }, class: 'btn btn-danger delete-button' %>
+  </div>
+<% end %>
+
+<h2 class="section-title">Faculty Members</h2>
+<% if @members.any? %>
+  <table class="user-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Role</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @members.each do |member| %>
+        <tr>
+          <td><%= link_to member.name, user_path(member) %></td>
+          <td><%= member.email %></td>
+          <td><%= member.role.humanize %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p class="text-center">No faculty members found.</p>
+<% end %>
+
+<h2 class="section-title">Documents</h2>
+<% if @documents.any? %>
+  <table class="user-table">
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Path</th>
+        <th>Created By</th>
+        <th>Last Updated</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @documents.each do |document| %>
+        <tr>
+          <td><%= link_to document.title, document_path(document) %></td>
+          <td>
+            <% path = []
+            current_folder = document.folder
+            while current_folder
+              path.unshift(current_folder.name)
+              current_folder = current_folder.parent_folder
+            end
+            path.push(document.title + '.md') %>
+            <%= path.join('/') %>
+          </td>
+          <td><%= document.user.name %></td>
+          <td><%= document.updated_at.strftime("%B %d, %Y %H:%M:%S") %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p class="text-center">No documents found for this faculty.</p>
+<% end %>

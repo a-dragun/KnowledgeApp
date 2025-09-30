@@ -1,0 +1,25 @@
+<div class="faculty-container">
+  <h1 class="faculty-title">Create New Faculty</h1>
+
+  <%= form_with model: @faculty, url: admin_faculties_path, method: :post, local: true, html: { class: 'faculty-form' } do |form| %>
+    <% if @faculty.errors.any? %>
+      <div class="error-explanation">
+        <h2><%= pluralize(@faculty.errors.count, "error") %> prohibited this faculty from being saved:</h2>
+        <ul>
+          <% @faculty.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="form-field">
+      <%= form.label :name, class: 'field-label' %>
+      <%= form.text_field :name, class: 'field-input' %>
+    </div>
+
+    <div class="form-actions">
+      <%= form.submit 'Create Faculty', class: 'submit-button' %>
+    </div>
+  <% end %>
+</div>

@@ -1,0 +1,8 @@
+<div class="welcome-container">
+    <h1>Welcome to KnowledgeApp</h1>
+    <% if user_signed_in? %>
+      <p>Explore your workspace and documents.</p>
+    <% else %>
+      <p>New here? <%= link_to 'Sign In', new_user_session_path %> or <%= link_to 'Register', new_user_registration_path %> to get started!</p>
+    <% end %>
+  </div>

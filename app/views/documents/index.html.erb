@@ -1,0 +1,59 @@
+<h1 class="page-title">Documents</h1>
+
+<%= form_with url: documents_path, method: :get, local: true, class: 'search-form' do |form| %>
+  <div class="form-group">
+    <%= form.label :search, 'Search Documents', class: 'form-label' %>
+    <%= form.text_field :search, value: params[:search], class: 'form-input' %>
+  </div>
+  <div class="form-group">
+    <%= form.label :faculty_id, 'Filter by Faculty', class: 'form-label' %>
+    <%= form.collection_select :faculty_id, Faculty.all, :id, :name, include_blank: 'All Faculties', selected: params[:faculty_id], class: 'form-select' %>
+  </div>
+  <div class="form-group">
+    <%= form.label :user_id, 'Filter by User', class: 'form-label' %>
+    <%= form.collection_select :user_id, User.all, :id, :name, include_blank: 'All Users', selected: params[:user_id], class: 'form-select' %>
+  </div>
+  <div class="form-group">
+    <%= form.label :sort_column, 'Sort By', class: 'form-label' %>
+    <%= form.select :sort_column, [['Title', 'title'], ['Updated At', 'updated_at']], selected: params[:sort_column], class: 'form-select' %>
+    <%= form.select :sort_direction, [['Ascending', 'asc'], ['Descending', 'desc']], selected: params[:sort_direction], class: 'form-select' %>
+  </div>
+  <%= form.submit 'Search', class: 'btn btn-primary' %>
+<% end %>
+
+<h2 class="section-title">Document List</h2>
+<% if @documents.present? %>
+  <table class="document-table">
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Faculty</th>
+        <th>Path</th>
+        <th>Created By</th>
+        <th>Last Updated</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @documents.each do |document| %>
+        <tr>
+          <td><%= link_to document.title, document_path(document) %></td>
+          <td><%= link_to document.faculty.name, faculty_path(document.faculty) %></td>
+          <td>
+            <% path = []
+            current_folder = document.folder
+            while current_folder
+              path.unshift(current_folder.name)
+              current_folder = current_folder.parent_folder
+            end
+            path.push(document.title + '.md') %>
+            <%= path.join('/') %>
+          </td>
+          <td><%= link_to document.user.name, user_path(document.user) %></td>
+          <td><%= document.updated_at.strftime("%B %d, %Y %H:%M:%S") %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p class="no-results">No documents found.</p>
+<% end %>

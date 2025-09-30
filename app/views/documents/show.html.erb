@@ -1,0 +1,52 @@
+<% if can_edit_or_delete_document? %>
+  <div class="document-actions">
+    <%= link_to 'Download', download_document_path(@document), class: 'btn btn-primary download-button' %>
+    <%= button_to 'Delete Document', document_path(@document), method: :delete, data: { confirm: 'Are you sure you want to delete this document?' }, class: 'btn btn-danger delete-button' %>
+  </div>
+<% end %>
+
+
+<h1 class="page-title"><%= @document.title %></h1>
+
+<%= form_with model: @document, url: document_path(@document), method: :patch, local: true, html: { multipart: true }, class: 'document-form' do |form| %>
+  <% if can_edit_or_delete_document? %>
+    <div class="form-group">
+      <%= form.label :title, 'Document Title', class: 'form-label' %>
+      <%= form.text_field :title, readonly: !can_edit_or_delete_document?, class: 'form-input' %>
+    </div>
+  <% end %>
+
+  <div class="form-group">
+    <%= form.label :markdown_file_content, 'Document Content', class: 'form-label' %>
+    <% if @document.markdown_file.attached? %>
+      <%= form.text_area :markdown_file_content, value: @document.markdown_file.download.to_s, rows: 20, cols: 80, readonly: !can_edit_or_delete_document?, class: 'form-textarea', id: 'markdown-textarea' %>
+    <% else %>
+      <%= form.text_area :markdown_file_content, rows: 20, cols: 80, readonly: !can_edit_or_delete_document?, class: 'form-textarea', id: 'markdown-textarea' %>
+    <% end %>
+  </div>
+
+  <% if can_edit_or_delete_document? %>
+    <div class="form-actions center-button">
+      <%= form.submit 'Update Document', class: 'btn btn-primary' %>
+    </div>
+  <% else %>
+    <%= link_to 'Download', download_document_path(@document), class: 'btn btn-primary download-button' %>
+  <% end %>
+<% end %>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+  if (document.getElementById("markdown-textarea") && <%= can_edit_or_delete_document? %>) {
+    var simplemde = new SimpleMDE({
+      element: document.getElementById("markdown-textarea"),
+      toolbar: ["bold", "italic", "heading", "|", "quote", "unordered-list", "ordered-list", "|", "link", "|", "preview", "side-by-side", "fullscreen"],
+    });
+    
+    if (!<%= can_edit_or_delete_document? %>) {
+      simplemde.togglePreview();
+      simplemde.codemirror.options.readOnly = true;
+    }
+  }
+});
+
+</script>

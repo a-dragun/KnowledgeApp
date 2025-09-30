@@ -1,0 +1,125 @@
+<h2 class= "section-title">Create Folders</h2>
+<div class="form-container">
+  <%= form_with model: @folder, url: workspace_index_path, method: :post do |form| %>
+    <%= form.hidden_field :creation_type, value: 'folder' %>
+    <div class="form-group">
+      <%= form.label :name, 'Folder Name' %>
+      <%= form.text_field :name, class: 'form-control' %>
+    </div>
+    <div class="form-group">
+      <%= form.label :parent_id, 'Parent Folder' %>
+      <%= form.collection_select :parent_id, @folders, :id, :formatted_name, class: 'form-control' %>
+    </div>
+    <%= form.submit 'Create Folder', name: 'folder_submit', class: 'btn btn-primary' %>
+  <% end %>
+</div>
+
+<br>
+
+<h2 class= "section-title">Delete Folder</h2>
+<div class="form-container">
+  <%= form_with url: delete_folder_path, method: :post do %>
+    <div class="form-group">
+      <%= label_tag :folder_id, 'Select Folder to Delete' %>
+      <% deletable_folders = @folders.reject { |folder| folder.is_root? || (folder.level == 1 && folder.faculty.present?) } %>
+      <%= collection_select(:folder, :id, deletable_folders, :id, ->(folder) { "#{folder.formatted_name} (#{folder.path_from_root})" }, { prompt: 'Choose a folder to delete' }, class: 'form-control') %>
+    </div>
+    <div class = "button-container">
+      <%= submit_tag 'Delete Folder', name: 'delete_folder_submit', class: 'btn btn-danger' %>
+    </div>
+  <% end %>
+</div>
+
+<h2 class="section-title">Upload or Write a Document</h2>
+<div class="form-container">
+  <%= form_with model: @document, url: workspace_index_path, method: :post, local: true do |form| %>
+    <%= form.hidden_field :creation_type, value: 'document' %>
+
+    <div class="form-group">
+      <%= form.label :title, 'Document Title' %>
+      <%= form.text_field :title, class: 'form-control' %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :file, 'Upload Document' %>
+      <%= form.file_field :file, class: 'form-control' %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :markdown_content, 'Or Write Document Content' %>
+      <%= form.text_area :markdown_content, rows: 20, cols: 80, class: 'form-control', id: 'markdown-textarea' %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :folder_id, 'Select Folder' %>
+      <%= form.collection_select :folder_id, @folders, :id, :formatted_name, { include_blank: 'Select Folder' }, class: 'form-control', selected: @default_folder&.id %>
+    </div>
+
+    <%= form.submit 'Save Document', name: 'document_submit', class: 'btn btn-primary' %>
+  <% end %>
+</div>
+
+
+<h2 class= "section-title">Editable Documents</h2>
+<% if @documents.present? %>
+  <table class="document-table">
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Path</th>
+        <th>Created By</th>
+        <th>Last Updated</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @documents.each do |document| %>
+        <tr>
+          <td><%= link_to document.title, document_path(document) %></td>
+          <td>
+            <% path = []
+            current_folder = document.folder
+            while current_folder
+              path.unshift(current_folder.name)
+              current_folder = current_folder.parent_folder
+            end
+            path.push(document.title + '.md') %>
+            <%= path.join('/') %>
+          </td>
+          <td><%= document.user.name %></td>
+          <td><%= document.updated_at.strftime("%B %d, %Y %H:%M:%S") %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p>No editable documents available.</p>
+<% end %>
+
+
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    var inputTypeSelect = document.getElementById('input-type-select');
+    var fileUploadField = document.getElementById('file-upload-field');
+    var textField = document.getElementById('text-field');
+
+    inputTypeSelect.addEventListener('change', function() {
+      if (inputTypeSelect.value === 'upload') {
+        fileUploadField.style.display = 'block';
+        textField.style.display = 'none';
+      } else if (inputTypeSelect.value === 'write') {
+        fileUploadField.style.display = 'none';
+        textField.style.display = 'block';
+      }
+    });
+  });
+
+  document.addEventListener("DOMContentLoaded", function() {
+  var simplemde = new SimpleMDE({
+    element: document.getElementById("markdown-textarea"),
+    toolbar: ["bold", "italic", "heading", "|", "quote", "unordered-list", "ordered-list", "|", "link", "|", "preview", "side-by-side", "fullscreen"],
+  });
+});
+
+
+</script>

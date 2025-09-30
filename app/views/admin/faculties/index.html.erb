@@ -1,0 +1,29 @@
+<h1 class="page-title">All faculties</h1>
+
+<% if @faculties.any? %>
+  <table class="user-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Number of Members</th>
+        <th>Number of Documents</th>
+        <th>Created At</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @faculties.each do |faculty| %>
+        <tr>
+          <td><%= faculty.id %></td>
+          <td><%= link_to faculty.name, faculty_path(faculty) %></td>
+          <td><%= faculty.users.count %></td>
+          <td><%= faculty.documents.count %></td>
+          <td><%= faculty.created_at.strftime("%B %d, %Y %H:%M:%S") %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p class="text-center">No faculties found.</p>
+<% end %>
+<%= link_to 'New Faculty', new_admin_faculty_path, class: 'btn btn-primary' %>

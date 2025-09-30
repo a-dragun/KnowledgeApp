@@ -1,0 +1,56 @@
+<h1 class="page-title">All Users</h1>
+
+<%= form_with url: admin_users_path, method: :get, local: true, class: 'search-form' do |form| %>
+  <div class="form-group">
+    <%= form.label :search, 'Search Users', class: 'field-label' %>
+    <%= form.text_field :search, value: params[:search], class: 'field-input' %>
+  </div>
+  <div class="form-group">
+    <%= form.label :role, 'Filter by Role', class: 'field-label' %>
+    <%= form.select :role, [['All Roles', ''], ['Admin', 'admin'], ['Faculty Member', 'faculty_member'], ['Regular User', 'regular_user']], selected: params[:role], class: 'form-select' %>
+  </div>
+  <div class="form-group">
+    <%= form.label :faculty_id, 'Filter by Faculty', class: 'field-label' %>
+    <%= form.collection_select :faculty_id, Faculty.all, :id, :name, include_blank: 'All Faculties', selected: params[:faculty_id], class: 'form-select' %>
+  </div>
+  <div class="form-group">
+    <%= form.label :sort_column, 'Sort By', class: 'field-label' %>
+    <%= form.select :sort_column, [['Email', 'email'], ['Name', 'name'], ['Created At', 'created_at']], selected: params[:sort_column], class: 'form-select' %>
+    <%= form.select :sort_direction, [['Ascending', 'asc'], ['Descending', 'desc']], selected: params[:sort_direction], class: 'form-select' %>
+  </div>
+  <div class="form-group">
+    <%= form.submit 'Search', class: 'btn btn-primary' %>
+  </div>
+<% end %>
+
+<br>
+
+<%= link_to 'Create new user', new_admin_user_path, class: 'btn btn-primary' %>
+
+<h2 class="list-title">User List</h2>
+<% if @users.present? %>
+  <table class="user-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Faculty</th>
+        <th>Created At</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @users.each do |user| %>
+        <tr>
+          <td><%= link_to user.name, user_path(user) %></td>
+          <td><%= user.email %></td>
+          <td><%= user.role.humanize %></td>
+          <td><%= user.faculty&.name || 'N/A' %></td>
+          <td><%= user.created_at.strftime("%B %d, %Y %H:%M:%S") %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p class="no-results">No users found.</p>
+<% end %>
